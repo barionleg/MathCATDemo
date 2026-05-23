@@ -21,11 +21,9 @@ To upload to the github website, do the following ([based on this github page](h
 ```
     <link rel="modulepreload" href="/MathCATDemo/index-
 ```
-3. change url line to use "wss"
+
 ```
-    var url = 'wss://' + window.location.host + '/MathCATDemo/_trunk/ws';
-```
-4. In the shell, issue the commands (the first might not be needed)
+3. In the shell, issue the commands (the first might not be needed)
 ```
     git push origin --delete gh-pages
     git add dist && git commit -m "update"
