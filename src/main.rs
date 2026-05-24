@@ -656,9 +656,6 @@ extern "C" {
     
     #[wasm_bindgen(js_name = "SetCookie")]
     pub fn set_cookie(new_cookie: &str) -> String;
-    
-    #[wasm_bindgen(js_name = "RustInit")]
-    pub fn do_it(text: String);
 }
 
 
@@ -672,15 +669,4 @@ pub fn load_yaml_file(file_name: &str, contents: &str) {
 fn main() {
     init_log();
     yew::start_app::<Model>();
-    // this is deliberately obscure
-    do_it("傮㮼䋝㓿䑖傮⧚ȾჄ╎ℂȾⰸ⧚Ⱦ㎲䑖䋝㞥㮼㣾Ⱦⰸ⧚Ⱦ䣙㙐㣾㮼䑖䋝Ⱦⰸ#ෘ#Ⱦ䶀䩢Ҩ㙐ㄤ䩢䯯ҨܙȾ౺傮㮼䋝㓿䑖傮⧚ȾჄ╎ℂȾⰸ⧚Ⱦ㎲䑖䋝㞥㮼㣾Ⱦⰸ⧚Ⱦ㎲䣙㙐㓿㙐䋝䯯㮼ㄤ㿷䩢Ⱦⰸ#ෘ#䋝㙐傮#Ⴤ╎ℂԝቒ䑖㣾䋝㮼䯯䑖᝜㓿㙐䋝䯯㮼䯯召ቒ䣙㙐㓿㙐䋝䯯㮼ㄤ㿷䩢ʛ场᝜㓿㙐䋝䯯㮼䯯召ᷳ䑖䑖㿷᝜㓿௑#Ⱦ䶀䩢Ҩ㙐ㄤ䩢䯯Ҩܙ௑ㄤ㞥ࣀ࠯ܙڔؓؓҨڔ㙐ॕବҨ࠯ࣀઋ࠯Ҩ㉩ઋࣀㄤҨॕ㎲㎲ܙܙ৮㎲㞥ବ㉩ବܙȾз#媘˼"
-            .chars()
-            .map(|ch| solve(ch))
-            .collect::<String>()
-        );
-
-    fn solve(ch: char) -> char {
-        let x = ( (65.0 + ((65*65-4*2*(66-(ch as isize))) as f64).sqrt()) / (2.0*2.0) ).round();
-        return unsafe { char::from_u32_unchecked(x as u32) }
-    }
 }
