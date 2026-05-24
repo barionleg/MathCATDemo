@@ -41,7 +41,7 @@ jobs:
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
-          PARAMS='AllowedOrigins="https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080"'
+          PARAMS='AllowedOrigins="https://daisy.github.io,http://localhost:8080,http://127.0.0.1:8080"'
           PARAMS="$PARAMS TtsProvider=\"${TTS_PROVIDER:-polly}\""
           PARAMS="$PARAMS AzureSpeechKey=\"${AZURE_SPEECH_KEY:-}\""
           PARAMS="$PARAMS AzureSpeechRegion=\"${AZURE_SPEECH_REGION:-}\""

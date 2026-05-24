@@ -5,7 +5,7 @@ Description: MathCAT Demo TTS proxy (Polly, Google, Azure)
 Parameters:
   AllowedOrigins:
     Type: String
-    Default: 'https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080'
+    Default: 'https://daisy.github.io,http://localhost:8080,http://127.0.0.1:8080'
     Description: Comma-separated browser origins allowed to call this API
   TtsProvider:
     Type: String

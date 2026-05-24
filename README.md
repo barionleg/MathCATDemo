@@ -39,6 +39,8 @@ During `sam deploy --guided`, set `TtsProvider` to `polly`, `google`, or `azure`
 
 For **running on the web**, push changes under `lambda/tts/` to `main` and use the GitHub Actions workflow [`.github/workflows/deploy-tts-lambda.yml`](.github/workflows/deploy-tts-lambda.yml). Required repository secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`. Optional: `TTS_PROVIDER`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`.
 
+CORS is preconfigured for the live demo and local dev: `https://daisy.github.io`, `http://localhost:8080`, and `http://127.0.0.1:8080` (see `AllowedOrigins` in [`lambda/tts/template.yaml`](lambda/tts/template.yaml)). Change that parameter if you host the demo elsewhere.
+
 See [`lambda/tts/README.md`](lambda/tts/README.md) for API details, security notes, and billing alerts.
 
 ### 2. Point the demo at the proxy
@@ -68,23 +70,33 @@ For GitHub Pages, build with `trunk build` and deploy `dist/` as described below
 Redeploy the Lambda with a different `TtsProvider` / `TTS_PROVIDER` and update credentials. No frontend or demo UI changes are required.
 
 ## Website builds
-To upload to the github website, do the following ([based on this github page](https://gist.github.com/cobyism/4730490)):
-1. stop trunk serve (it will rebuild the file and wipe the following change)
-2. In dist/index.html: update the line that starts:
-```
-    import {load_yaml_file} from '/MathCATDemo/index-
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with the value from the line
-```
-    <link rel="modulepreload" href="/MathCATDemo/index-
-```
 
-```
-3. In the shell, issue the commands (the first might not be needed)
-```
-    git push origin --delete gh-pages
-    git add dist && git commit -m "update"
-    c:/Software/Git/bin/git subtree push --prefix dist origin gh-pages 
-```
+The live demo is at [daisy.github.io/MathCATDemo](https://daisy.github.io/MathCATDemo/). GitHub Pages serves the **`gh-pages`** branch (contents of `dist/`).
 
-Note: step '2' shouldn't be needed, but I haven't figured out the configuration settings to get it to do the update properly.
+**Two separate deploys:** GitHub Actions ([`.github/workflows/deploy-tts-lambda.yml`](.github/workflows/deploy-tts-lambda.yml)) updates only the **TTS Lambda** when `lambda/tts/**` changes. It does **not** build or publish the demo site. Pushing frontend changes to `main` does not update github.io until you publish `dist/` to `gh-pages` as below.
+
+### Deploy steps
+
+1. **Configure TTS (optional).** To enable speech on the live site, set `window.MATHCAT_TTS_API` in `index.html` before building (see [Text-to-speech](#text-to-speech) above). Leave it as `''` to ship without playback.
+
+2. **Stop `trunk serve`** if it is running so it does not overwrite `dist/` while you publish.
+
+3. **Build the site:**
+
+   ```bash
+   trunk build
+   ```
+
+   `Trunk.toml` sets `public_url = "/MathCATDemo/"`, which matches the GitHub Pages project URL.
+
+4. **Push `dist/` to `gh-pages`** ([subtree workflow](https://gist.github.com/cobyism/4730490)):
+
+   ```bash
+   git add dist
+   git commit -m "Update GitHub Pages build"
+   git subtree push --prefix dist origin gh-pages
+   ```
+
+5. **Verify** at [daisy.github.io/MathCATDemo](https://daisy.github.io/MathCATDemo/). If TTS is enabled, confirm speech plays with sync highlighting.
+
+For local testing before publish, use `http://localhost:8080/MathCATDemo/` so browser requests match the Lambda CORS allowlist.

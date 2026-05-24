@@ -8,4 +8,4 @@ s3_prefix = "mathcat-demo-tts"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "AllowedOrigins=\"https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080\" TtsProvider=\"polly\""
+parameter_overrides = "AllowedOrigins=\"https://daisy.github.io,http://localhost:8080,http://127.0.0.1:8080\" TtsProvider=\"polly\""

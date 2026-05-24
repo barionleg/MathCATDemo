@@ -1,7 +1,7 @@
 import { synthesizeSpeech } from './providers/index.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
-  'https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080')
+  'https://daisy.github.io,http://localhost:8080,http://127.0.0.1:8080')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);

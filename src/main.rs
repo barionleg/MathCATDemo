@@ -606,7 +606,7 @@ impl Component for Model {
                     ref={self.braille_node_ref.clone()}>
                 </div>
                 <p>
-                  <a href="https://github.com/NSoiffer/MathCAT/issues" target="_blank" rel="noreferrer">{"Please report bugs here."}</a>
+                  <a href="https://github.com/daisy/MathCAT/issues" target="_blank" rel="noreferrer">{"Please report bugs here."}</a>
                 </p>
             </div>
         }

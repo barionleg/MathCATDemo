@@ -170,7 +170,7 @@
         reader.readAsText(file,'UTF-8');
         reader.onload = readerEvent => {
             var content = readerEvent.target.result; // this is the content of the file
-            load_yaml_file(file.name, content );     // 'file.name' is only the last component (security reasons)
+            window.wasmBindings.load_yaml_file(file.name, content); // 'file.name' is only the last component (security reasons)
         }
       }
       input.click();  // triggers 'onchange'
@@ -179,8 +179,8 @@
     <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>
       // Set after deploying lambda/tts (see lambda/tts/README.md). Empty disables playback.
-      window.MATHCAT_TTS_API = '';
-      // window.MATHCAT_TTS_API = 'https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/tts';
+      // window.MATHCAT_TTS_API = '';
+      window.MATHCAT_TTS_API = 'https://uuxu1nom5k.execute-api.us-east-1.amazonaws.com/tts';
       window['MathCAT'] = {};
 
       // Function invoked by button click
@@ -324,10 +324,6 @@
         }
       }
     </script>
-  <script type="module">
-    import {load_yaml_file} from '/MathCATDemo/index-844b68763f8ae55f.js';
-    window.load_yaml_file = load_yaml_file; // put in global scope so it can be called from global scope functions
-  </script>
 
     <link data-trunk rel="sass" href="index.scss" />  
     <!-- for debugging -->
