@@ -1,0 +1,59 @@
+name: Deploy TTS Lambda
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lambda/tts/**'
+      - '.github/workflows/deploy-tts-lambda.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: aws-actions/setup-sam@v2
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install Lambda dependencies
+        working-directory: lambda/tts
+        run: npm install
+
+      - name: Build and deploy
+        working-directory: lambda/tts
+        env:
+          TTS_PROVIDER: ${{ secrets.TTS_PROVIDER }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          PARAMS='AllowedOrigins="https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080"'
+          PARAMS="$PARAMS TtsProvider=\"${TTS_PROVIDER:-polly}\""
+          PARAMS="$PARAMS AzureSpeechKey=\"${AZURE_SPEECH_KEY:-}\""
+          PARAMS="$PARAMS AzureSpeechRegion=\"${AZURE_SPEECH_REGION:-}\""
+          PARAMS="$PARAMS GoogleServiceAccountJson=\"${GOOGLE_SERVICE_ACCOUNT_JSON:-}\""
+          sam build
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
+            --stack-name mathcat-demo-tts \
+            --resolve-s3 \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides "$PARAMS"
+
+      - name: Show API URL
+        working-directory: lambda/tts
+        run: |
+          sam list stack-outputs --stack-name mathcat-demo-tts --output json

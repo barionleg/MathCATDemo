@@ -1,0 +1,11 @@
+# Copy to samconfig.toml and adjust stack/region as needed.
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "mathcat-demo-tts"
+resolve_s3 = true
+s3_prefix = "mathcat-demo-tts"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "AllowedOrigins=\"https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080\" TtsProvider=\"polly\""

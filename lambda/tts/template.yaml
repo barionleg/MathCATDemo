@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: MathCAT Demo TTS proxy (Polly, Google, Azure)
+
+Parameters:
+  AllowedOrigins:
+    Type: String
+    Default: 'https://nsoiffer.github.io,http://localhost:8080,http://127.0.0.1:8080'
+    Description: Comma-separated browser origins allowed to call this API
+  TtsProvider:
+    Type: String
+    Default: polly
+    AllowedValues:
+      - polly
+      - google
+      - azure
+    Description: Active speech engine for the proxy
+  AzureSpeechKey:
+    Type: String
+    Default: ''
+    NoEcho: true
+  AzureSpeechRegion:
+    Type: String
+    Default: ''
+  GoogleServiceAccountJson:
+    Type: String
+    Default: ''
+    NoEcho: true
+
+Resources:
+  TtsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - arm64
+      Timeout: 30
+      MemorySize: 512
+      Environment:
+        Variables:
+          ALLOWED_ORIGINS: !Ref AllowedOrigins
+          TTS_PROVIDER: !Ref TtsProvider
+          AZURE_SPEECH_KEY: !Ref AzureSpeechKey
+          AZURE_SPEECH_REGION: !Ref AzureSpeechRegion
+          GOOGLE_SERVICE_ACCOUNT_JSON: !Ref GoogleServiceAccountJson
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - polly:SynthesizeSpeech
+              Resource: '*'
+      Events:
+        TtsPost:
+          Type: HttpApi
+          Properties:
+            Path: /tts
+            Method: POST
+        TtsOptions:
+          Type: HttpApi
+          Properties:
+            Path: /tts
+            Method: OPTIONS
+
+Outputs:
+  TtsApiUrl:
+    Description: POST endpoint for the MathCAT demo frontend
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/tts'

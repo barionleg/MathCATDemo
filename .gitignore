@@ -1,0 +1,5 @@
+/target/
+/dist/
+lambda/tts/node_modules/
+lambda/tts/.aws-sam/
+lambda/tts/samconfig.toml

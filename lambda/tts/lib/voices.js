@@ -1,0 +1,63 @@
+const VOICES = {
+  polly: {
+    da: 'Naja',
+    de: 'Vicki',
+    en: 'Joanna',
+    es: 'Lucia',
+    fi: 'Suvi',
+    fr: 'Lea',
+    is: 'Dora',
+    it: 'Bianca',
+    nb: 'Ida',
+    nl: 'Laura',
+    pl: 'Ola',
+    pt: 'Vitoria',
+    sv: 'Astrid',
+    'zh-cn': 'Hiujin',
+    'zh-tw': 'Zhiyu',
+  },
+  google: {
+    da: 'da-DK-Neural2-F',
+    de: 'de-DE-Neural2-F',
+    en: 'en-US-Neural2-F',
+    es: 'es-ES-Neural2-F',
+    fi: 'fi-FI-Wavenet-A',
+    fr: 'fr-FR-Neural2-C',
+    id: 'id-ID-Wavenet-A',
+    is: 'is-IS-Standard-A',
+    it: 'it-IT-Neural2-A',
+    nb: 'nb-NO-Wavenet-A',
+    nl: 'nl-NL-Wavenet-A',
+    pl: 'pl-PL-Wavenet-A',
+    pt: 'pt-PT-Wavenet-A',
+    sv: 'sv-SE-Wavenet-A',
+    vi: 'vi-VN-Neural2-A',
+    'zh-cn': 'cmn-CN-Wavenet-A',
+    'zh-tw': 'cmn-TW-Wavenet-A',
+  },
+  azure: {
+    da: 'da-DK-ChristelNeural',
+    de: 'de-DE-KatjaNeural',
+    en: 'en-US-JennyNeural',
+    es: 'es-ES-ElviraNeural',
+    fi: 'fi-FI-SelmaNeural',
+    fr: 'fr-FR-DeniseNeural',
+    id: 'id-ID-GadisNeural',
+    is: 'is-IS-GudrunNeural',
+    it: 'it-IT-ElsaNeural',
+    nb: 'nb-NO-IselinNeural',
+    nl: 'nl-NL-ColetteNeural',
+    pl: 'pl-PL-AgnieszkaNeural',
+    pt: 'pt-PT-RaquelNeural',
+    sv: 'sv-SE-SofieNeural',
+    vi: 'vi-VN-HoaiMyNeural',
+    'zh-cn': 'zh-CN-XiaoxiaoNeural',
+    'zh-tw': 'zh-TW-HsiaoChenNeural',
+  },
+};
+
+export function voiceForLang(provider, lang) {
+  const table = VOICES[provider] || VOICES.polly;
+  const key = lang?.toLowerCase() || 'en';
+  return table[key] || table.en;
+}
