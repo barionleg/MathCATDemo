@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>MathCAT Demo</title>
+
+ 
+
+
+    <link rel="stylesheet" href="index-a52fa369754d3f06.css" integrity="sha384-+I4Bex4cCcMX4mQJsdhTl0IZBCLNw40HuM0C0K53gwFVAK8ie1RG/2K8Ds+VfTbL"/>  
+	
+	</head>
+	<body>
+    <!-- for debugging -->
+    
+    <!-- MathJax-related stuff -->
+<script type="text/JavaScript" src="mathjax-related.js"/></script>   
+
+    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+	
+	    <script>
+      // Set after deploying lambda/tts (see lambda/tts/README.md). Empty disables playback.
+      // window.MATHCAT_TTS_API = '';
+      window.MATHCAT_TTS_API = 'https://uuxu1nom5k.execute-api.us-east-1.amazonaws.com/tts';
+      window['MathCAT'] = {};
+
+      // Function invoked by button click
+      function SpeakText(text, lang) {
+        if (window['MathCAT'].readAloudAudio) {
+          // pause current playback to allow new playback
+          window['MathCAT'].readAloudAudio.pause();
+          removeHighlight(window['MathCAT'].readAloudCurrentMark, 0, 'sync-highlight');
+          console.warn("paused playback");
+        }
+
+        // empty text is a way of stopping speech
+        if (!text) {
+          return;
+        }
+
+        console.log("TTS:", text);
+        speakTextWithProxy(text, lang);
+      }
+
+      function ensureReadAloudAudio() {
+        if (window['MathCAT'].readAloudAudio) {
+          window['MathCAT'].readAloudAudio.pause();
+          return;
+        }
+
+        window['MathCAT'].readAloudAudio = new Audio();
+        window['MathCAT'].readAloudAudio.addEventListener(
+          'ended',
+          () => {
+            removeHighlight(window['MathCAT'].readAloudCurrentMark, 0, 'sync-highlight');
+            window['MathCAT'].readAloudAudio = null;
+          }
+        );
+        window['MathCAT'].readAloudAudio.addEventListener(
+          'timeupdate',
+          () => {
+            let value = '';
+            const target =
+              window['MathCAT'].readAloudAudio.currentTime * 1000 + 100;
+
+            for (const mark of window['MathCAT'].readAloudMarks) {
+              if (mark.time < target) {
+                value = mark.value;
+              }
+            }
+            if (window['MathCAT'].readAloudCurrentMark !== value) {
+              removeHighlight(window['MathCAT'].readAloudCurrentMark, 0, 'sync-highlight');
+              window['MathCAT'].readAloudCurrentMark = value;
+              highlightID(window['MathCAT'].readAloudCurrentMark, 0, 'sync-highlight');
+            }
+          }
+        );
+      }
+
+      function playReadAloudBlob(blob) {
+        ensureReadAloudAudio();
+        const url = URL.createObjectURL(blob);
+        window['MathCAT'].readAloudAudio.src = url;
+        window['MathCAT'].readAloudAudio.play();
+      }
+
+      // Adapted from https://github.com/arnog/mathlive/blob/master/src/editor/speech-read-aloud.ts
+      async function speakTextWithProxy(text, lang) {
+        const apiUrl = window.MATHCAT_TTS_API;
+        if (!apiUrl) {
+          console.warn('MATHCAT_TTS_API is not configured; speech playback disabled.');
+          return;
+        }
+
+        try {
+          const resp = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, lang }),
+          });
+          if (!resp.ok) {
+            console.warn('TTS proxy error:', resp.status, await resp.text());
+            return;
+          }
+
+          const { marks, audioBase64, mimeType } = await resp.json();
+          window['MathCAT'].readAloudMarks = marks;
+          window['MathCAT'].readAloudTokens = [];
+          for (const mark of window['MathCAT'].readAloudMarks) {
+            if (mark.value) {
+              window['MathCAT'].readAloudTokens.push(mark.value);
+            }
+          }
+          window['MathCAT'].readAloudCurrentMark = '';
+
+          const binary = atob(audioBase64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: mimeType || 'audio/mpeg' });
+          playReadAloudBlob(blob);
+        } catch (err) {
+          console.warn('speakTextWithProxy error:', err, err.stack);
+        }
+      }
+
+      const leafElements = ['mi', 'mn', 'mo', 'ms', 'mtext'];
+
+      function removeHighlight(id, offset, className) {
+        if (id) {
+          let element = findNavigationElement(id);
+          if (element) {
+            if (offset > 0 && leafElements.includes(element.tagName.toLowerCase().replace('mjx-', ''))) {
+              // for leaf elements, we may have wrapped a span around the content
+              let span = element.querySelector('span.' + className);
+              if (span) {
+                span.replaceWith(...span.childNodes); // unwrap the span
+              }
+            } else {
+              element.classList.remove(className);
+            }
+          }
+        }
+      }
+
+      function highlightID(id, offset, className) {
+        let element = findNavigationElement(id);
+        if (element) {
+          if (offset > 0 && leafElements.includes(element.tagName.toLowerCase().replace('mjx-', ''))) {
+            // for leaf elements, wrap a span around the content
+            let range = document.createRange();
+            console.log("highlightID: wrapping span around ", element,  " at offset ", offset);
+            range.setStart(element, offset - 1);
+            range.setEnd(element, offset);
+            let span = document.createElement('span');
+            span.classList.add(className);
+            span.style.display = 'inline-block';
+            range.surroundContents(span);
+            console.log("highlightID: wrapped span around ", element, " at offset ", offset);
+          } else {
+            element.classList.add(className);
+            console.log("highlightID: added class to ", element);
+          }
+        }
+      }
+	  
+	  </script>
+	  
+	  <script type="module">
+import init, * as bindings from 'math_cat_demo-f758716f1daac5f0.js';
+const wasm = await init({ module_or_path: 'math_cat_demo-f758716f1daac5f0_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script> 
+
+
+<!--<script type="text/JavaScript" src="modul.js"/></script>-->   
+
+<link rel="modulepreload" href="math_cat_demo-f758716f1daac5f0.js" crossorigin="anonymous" integrity="sha384-M1mfS8qVm8XqkoMCWrj+AOf9CURJdS3DlLm4x9mZs+hnPy9B6oL2rzuq5EPVuTGq">
+
+<link rel="preload" href="math_cat_demo-f758716f1daac5f0_bg.wasm" crossorigin="anonymous" integrity="sha384-GHMR9Di+3kVG1JLOTy8/2hyXD2xhlCEpG4/QekQxn7NxMWO3/94dmYUtTSvRlDjK" as="fetch" type="application/wasm">
+	</body>
+</html>
